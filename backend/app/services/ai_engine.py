@@ -1,0 +1,73 @@
+from groq import Groq
+import os
+import asyncio
+from typing import Optional
+from app.models.schemas import AIExplanation
+
+class AIEngine:
+    def __init__(self):
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            print("WARNING: GROQ_API_KEY not found in env.")
+            self.client = None
+        else:
+            print(f"AI Engine Configured (Groq). Key length: {len(api_key)}")
+            self.client = Groq(api_key=api_key)
+            self.model_name = "llama-3.1-8b-instant"
+
+    async def analyze_url(self, url: str, signals: dict, risk_score: int) -> Optional[AIExplanation]:
+        if not self.client:
+            return AIExplanation(score=risk_score, explanation="AI Analysis unavailable (Missing API Key).")
+            
+        print(f"Analyzing URL with AI (Groq): {url}")
+
+        prompt = f"""
+        You are a CyberSecurity Expert. Analyze this URL: {url}
+        
+        Context:
+        - Technical Signals: {signals}
+        - Automated Risk Score: {risk_score}/100 (where 0 is Malicious, 100 is Safe)
+        
+        Task:
+        1. Determine your own Safety Score (0-100) based on the URL structure and context.
+        2. Write a verbose, ~100 word explanation about why the url is safe/unsafe, what attack were perpetuated (if any), or why it looks legitimate.
+        3. Be decisive and focus on security implications.
+        
+        IMPORTANT: output valid JSON only. format: {{ "score": <int>, "explanation": "<string>" }}
+        """
+
+        try:
+            # Run blocking Groq call in a thread to allow async functionality
+            # Groq Python client is synchronous by default unless using AsyncGroq (not standard in every env yet, checking docs implied simple switch)
+            # We'll use the sync client wrapped in to_thread for simplicity or AsyncGroq if available.
+            # Let's assume standard sync pattern for safety or check if AsyncGroq is installed.
+            # To be safe and fast, we'll wrap the sync call.
+            
+            def get_groq_response():
+                chat_completion = self.client.chat.completions.create(
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": prompt,
+                        }
+                    ],
+                    model=self.model_name,
+                    response_format={"type": "json_object"},
+                    max_tokens=300,
+                    temperature=0.3, # Low temp for deterministic outputs
+                )
+                return chat_completion.choices[0].message.content
+
+            response_content = await asyncio.to_thread(get_groq_response)
+            
+            import json
+            result = json.loads(response_content)
+            
+            return AIExplanation(
+                score=result.get("score", risk_score),
+                explanation=result.get("explanation", "Could not generate explanation.")
+            )
+            
+        except Exception as e:
+            print(f"Groq Engine Error Details: {e}")
+            return AIExplanation(score=risk_score, explanation="AI Analysis failed due to an error.")
