@@ -18,8 +18,12 @@ function App() {
     setResult(null)
 
     try {
-      // In development, Vite proxies /api to backend
-      const response = await fetch('http://localhost:8000/api/analyze', {
+      // In development, Vite proxies. In production, Vercel rewrites to /api
+      const apiUrl = import.meta.env.PROD
+        ? '/api/analyze'
+        : 'http://localhost:8000/api/analyze';
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

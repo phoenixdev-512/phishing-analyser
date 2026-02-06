@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+groq
+python-dotenv
+requests
+scikit-learn
+pandas
+regex
+python-multipart
+httpx
