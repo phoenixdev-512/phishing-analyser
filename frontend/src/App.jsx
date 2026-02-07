@@ -18,10 +18,9 @@ function App() {
     setResult(null)
 
     try {
-      // In development, Vite proxies. In production, Vercel rewrites to /api
-      const apiUrl = import.meta.env.PROD
-        ? '/api/analyze'
-        : 'http://localhost:8000/api/analyze';
+      // Use env var for base URL if set, otherwise default to relative path (proxied by Vite or Vercel)
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const apiUrl = `${baseUrl}/api/analyze`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',

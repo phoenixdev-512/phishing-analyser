@@ -13,7 +13,10 @@ app = FastAPI(title="Phishing URL Analyzer", version="1.0.0")
 origins = [
     "http://localhost:5173", # Vite default
     "http://127.0.0.1:5173",
+    os.getenv("FRONTEND_URL"),
 ]
+# Filter out None values
+origins = [o for o in origins if o]
 
 app.add_middleware(
     CORSMiddleware,
