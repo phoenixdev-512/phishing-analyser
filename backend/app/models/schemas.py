@@ -7,6 +7,8 @@ class AnalyzeURLRequest(BaseModel):
 class AIExplanation(BaseModel):
     score: int = Field(..., description="Safety score determined by AI (0-100)")
     explanation: str = Field(..., description="Concise explanation of the verdict")
+    decision: Optional[str] = Field(None, description="AI decision: SAFE_TO_CLICK, CAUTION, or DO_NOT_CLICK")
+    alternatives: Optional[List[str]] = Field(default=[], description="Safe alternative URLs if applicable")
 
 class AnalysisResult(BaseModel):
     url: str

@@ -48,6 +48,8 @@ Follow these instructions to set up the project locally for development and test
 
 ### Installation
 
+For detailed deployment instructions, see [deployment_guide.md](deployment_guide.md).
+
 #### 1. Clone the Repository
 ```bash
 git clone https://github.com/yourusername/phishing-analyser.git
