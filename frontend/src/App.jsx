@@ -1,4 +1,4 @@
-import { useState } from 'react'
+  import { useState } from 'react'
 import ResultCard from './components/ResultCard/ResultCard'
 import ExplanationSection from './components/ExplanationSection/ExplanationSection'
 import './index.css'
